@@ -22,7 +22,7 @@ function preload() {
 function setup() {
   createCanvas(800, 800);
   
-  deathIndex = 0;
+  deathIndex = 1;
   signatureScore = 0;
   ended = false;
   
@@ -31,12 +31,13 @@ function setup() {
   COLOR_2 = color('#D17E85');
   COLOR_3 = color('#722C4B');
   COLOR_4 = color('#000000');
+  COLOR_5 = color('#9F9F92');
   
   SKIN_0 = color('#8D5524');
   SKIN_1 = color('#C68642');
   SKIN_2 = color('#FFDBAC');
    
-  background(COLOR_0);
+  background(COLOR_5);
   nextScene();
 }
 
@@ -75,26 +76,21 @@ function nextScene() { // Rotate between the three scenes
     
 }
 
-function drawMessage() { // Draw introductory messages at certain points
+function drawCounter() {
   
-  noStroke();
-  textSize(16);
-  textFont('Georgia');
+  let counter = deathIndex-1;
   
-  let message = '';
-  
-  switch (deathIndex) {
+  while (counter >= 0) {
     
-    case 1:
-    message = 'The United States has executed 1524 defendants since 1976.';
-    break;
-    case 2:
-    message = 'You are the wardens.';
-    break;
+    let x = (counter * 8) % 760;
+    let y = 40 * int((counter * 8) / 760);
     
+    stroke(0);
+    line(20 + x, 20 + y, 20 + x, 40 + y);
+    
+    counter --;
   }
   
-  text(message, (width - textWidth(message)) / 2, 50);
 }
 
 
@@ -115,7 +111,7 @@ class PaperScene { // Scene 1: Sign the paper
   }
   
   display() { 
-    background(COLOR_0);
+    background(COLOR_5);
     
     fill(255); // Paper
     noStroke();
@@ -134,21 +130,13 @@ class PaperScene { // Scene 1: Sign the paper
     fill(255);
     rect(277, 220, textWidth(this.prisonerName) + 8, 16);
 
-    fill(0);
-    text(this.prisonerName, 280, 230);
-
     textSize(24); // Title
     text('Order of Execution', 224, 150);
 
     stroke(0); // Signature line
     line(400, 650, 575, 650);
-
-    noStroke(); // Instruction
-    textSize(10);
-    textFont('Arial');
-    text('Signature of Warden', 400, 662);
     
-    drawMessage(); // Draw any introductory messages
+    drawCounter();
   }
 
   drag(pX, pY, v) {
@@ -178,6 +166,7 @@ class StrapScene {
   constructor() {
     this.sceneNumber = 1; // identity of scene in sequence
     this.tightness = 0;
+    this.tightness2 = 0;
   }
   
   display() {
@@ -187,10 +176,34 @@ class StrapScene {
     noStroke(); // Table and Subject
     fill(COLOR_1);
     rect(130, 0, width - 260, 800);
-    fill(COLOR_2);
-    rect(150, 0, width - 300, 800);
+    quad(0, 200, 200, 100, 200, 0, 0, 0);
+    quad(width, 200, width-200, 100, width-200, 0, width, 0);
     
+    fill(230);
+    rect(150, 0, width - 300, 800);
+    push();
+    translate(0, -20);
+    quad(0, 200, 200, 100, 200, 0, 0, 0);
+    quad(width, 200, width-200, 100, width-200, 0, width, 0);
+    pop();
+    
+    
+    push();
+    translate(0, -200);
     this.drawBelt( int(this.tightness / 150) );
+    pop();
+    push();
+    translate(0, 200);
+    this.drawBelt( int(this.tightness2 / 150) );
+    pop();
+    
+    fill(210);
+    rect(-30, 550, 100, 200, 10);
+    fill(150);
+    rect(-10, 560, 60, 80, 10);
+    rect(-10, 660, 60, 80, 10);
+    
+    drawCounter();
   }
   
   drawBelt(stage) {
@@ -227,6 +240,14 @@ class StrapScene {
       }
       pop();
       
+      noStroke(); // Arrow
+      fill(0);
+      push();
+      translate(570, 240);
+      triangle(50, 0, 50, 50, 75, 25);
+      rect(17, 17.5, 50, 15);
+      pop();
+      
       fill('#585563'); // Buckle
       noStroke();
       push();
@@ -243,6 +264,7 @@ class StrapScene {
       stroke(0);
       noFill();
       push();
+      translate(-5, 0);
       for(let y = 0; y < 150; y++){
         bezier( 420+25, 400-25, 500+25, 400-25,  670, 400, 670, 500);
         translate(0, .5);
@@ -261,6 +283,7 @@ class StrapScene {
       stroke(0);
       noFill();
       push();
+      translate(5, 0);
       for(let y = 0; y < 150; y++) {
         bezier( 400, 340, 340, 400,  130, 400, 130, 500);
         bezier( 400, 340, 460, 280,  500-25, 280-25, 600-25, 280-25);
@@ -284,6 +307,7 @@ class StrapScene {
       stroke(0);
       noFill();
       push();
+      translate(-10, 0);
         for(let y = 0; y < 150; y++){
           bezier( 420, 400, 500, 400,  670, 400, 670, 500);
           translate(0, .5);
@@ -299,6 +323,7 @@ class StrapScene {
       stroke(0);
       noFill();
       push();
+      translate(10, 0);
         for(let y = 0; y < 150; y++) {
           bezier( 400, 340, 340, 400,  130, 400, 130, 500);
           bezier( 400, 340, 460, 280,  500, 280, 600, 280);
@@ -317,24 +342,39 @@ class StrapScene {
   }
   
   drag(pX, pY, v) { // Tighten strap if mouse vector is rightward
-    if (v.x > 0 && int(this.tightness / 150) < 2) {
-      if (int(this.tightness / 150) < int((v.x + this.tightness) / 150) ) {
-        this.tightness += v.x;
-        this.display(); // Only draw if stage is changing
+    if (pY < 400) {
+      if (v.x > 0 && int(this.tightness / 150) < 2) {
+        if (int(this.tightness / 150) < int((v.x + this.tightness) / 150) ) {
+          this.tightness += v.x;
+          this.display(); // Only draw if stage is changing
+        }
+        else {
+          this.tightness += v.x;
+        }
       }
-      else {
-        this.tightness += v.x;
+      if (int(this.tightness / 150) >= 2) { // Start timer if completely tightened
+        this.tightenedTime = millis();
       }
-      
-      
     }
-    if (int(this.tightness / 150) == 2) { // Start timer if completely tightened
-      this.tightenedTime = millis();
+    else {
+      if (v.x > 0 && int(this.tightness2 / 150) < 2) {
+        if (int(this.tightness2 / 150) < int((v.x + this.tightness2) / 150) ) {
+          this.tightness2 += v.x;
+          this.display(); // Only draw if stage is changing
+        }
+        else {
+          this.tightness2 += v.x;
+        }
+      }
+      if (int(this.tightness2 / 150) >= 2) { // Start timer if completely tightened
+        this.tightenedTime2 = millis();
+      }
     }
   }
+    
   
   isFinished() { // If 1 second since interaction complete, signal that scene is done
-    return millis() - 1000 >= this.tightenedTime;
+    return millis() - 1000 >= this.tightenedTime && millis() - 1000 >= this.tightenedTime2;
   }
 }
 
@@ -361,7 +401,7 @@ class DeathScene {
   
   display() {
     
-    background(COLOR_0);
+    background(map(deathIndex, 0, 10, 238, 114), map(deathIndex, 0, 10, 215, 44), map(deathIndex, 0, 10, 201, 75));
     
     noStroke();
     fill(this.skinColor); // Body
@@ -390,11 +430,13 @@ class DeathScene {
     rect(555, -40 + this.pushedAmount, 50, 175 - this.pushedAmount);
     
     pop();
+    
+    drawCounter();
   }
   
   drag(pX, pY, v) { // Move handle and liquid down if mouse vector is down-leftward
     if (this.pushedAmount < 175 &&  abs(pX-(height-pY)) < 100 && v.x < 0 && v.y > 0) {
-      this.pushedAmount += 1;
+      this.pushedAmount += 1 - map(deathIndex, 0, 10, 0, .6);
       this.display();
       
       if (this.pushedAmount > 170) { // Start timer if fully injected
