@@ -15,7 +15,7 @@ let currentScene, // current scene object
 function preload() {
   
   // Convert prisoner data in JSON to array
-  let url = 'https://api.jsonbin.io/b/5f96ed99076e516c36fba594'; // “Execution Database.” Death Penalty Information Center, deathpenaltyinfo.org/executions/execution-database. 
+  let url = './deaths.json'; // “Execution Database.” Death Penalty Information Center, deathpenaltyinfo.org/executions/execution-database. 
   prisoners = loadJSON(url);
 }
 
