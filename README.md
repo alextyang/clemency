@@ -1,4 +1,4 @@
-# The Death Penalty
-A p5.js project where you carry out every single American State execution.
+# Clemency
+An experiential art project about emotional endurance, inspired by the movie Clemency.
 
-Sign the papers, Strap them down, Carry it out.
+[Start by signing the paper.](https://alextyang.github.io/clemency/)
